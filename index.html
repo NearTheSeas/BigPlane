@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<script src="js/BackGround.js"></script>
+		<script src="js/Loading.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/Player.js"></script>
+		<script src="js/Bullet.js"></script>
+		<title></title>
+		<style>
+			div {
+				width: 480px;
+				height: 620px;
+				margin: 0 auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<canvas id="canvas" width="480" height="630"></canvas>
+		</div>
+	</body>
+	<script type="text/javascript">
+		
+		var canvas = document.querySelector('canvas');
+        var ctx = canvas.getContext('2d');
+        
+		//背景的宽高
+        var canvasW = canvas.width;
+        var canvasH = canvas.height;
+        
+		//游戏全部状态
+		var START =0;
+		var STATRING =1 ;
+		var RUNNING =2;
+		var PAUSE =3;
+		var GAMEOVER =4;
+		
+		//当前游戏状态
+		var state = START;
+		
+		//设置背景
+//		var sky = null;
+		var img = new Image();
+		img.src='img/background.png';
+		var sky = new BackGround({img,width:canvasW,height:canvasH,fps:20});
+//		img.onload = function(){
+//			sky = 
+//		//sky.render(ctx);	
+//		};
+		//添加鼠标点击事件
+		canvas.addEventListener('click',function(){
+			if(state==START){
+				state = STATRING;
+			}
+		});
+		
+		
+		
+		//版权信息
+		var copyright = new Image();
+		copyright.src='img/shoot_copyright.png';
+		
+		//版权信息的起始坐标
+		var cx=0,cy=0;
+		//必须先加载图片，否则 copyright.naturalWidth 为 0
+		copyright.onload = function (){
+			cx = (canvasW - copyright.naturalWidth) /2;
+			cy = (canvasH - copyright.naturalHeight) /2;	
+			console.log("copyright坐标："+cx+":"+cy);
+		}
+		
+		//游戏载入
+		var loadings = [];
+		loadings[0] = new Image();
+		loadings[0].src='img/game_loading1.png';
+		loadings[1] = new Image();
+		loadings[1].src='img/game_loading2.png';
+		loadings[2] = new Image();
+		loadings[2].src='img/game_loading3.png';
+		loadings[3] = new Image();
+		loadings[3].src='img/game_loading4.png';
+
+		var loading= new Loading({frames:loadings,width:186,height:38,x:0,y:canvasH-50,fps:5});
+	
+		//创建player飞机
+		var px =canvasW;
+		var py = canvasH;
+		var playerImgs = [];
+		//0-1 正常状态 2-5 爆炸过程
+		playerImgs[0] = new Image();
+		playerImgs[0].src="img/hero1.png";
+		playerImgs[1] = new Image();
+		playerImgs[1].src="img/hero2.png";
+		playerImgs[2] = new Image();
+		playerImgs[2].src="img/hero_blowup_n1.png";
+		playerImgs[3] = new Image();
+		playerImgs[3].src="img/hero_blowup_n2.png";
+		playerImgs[4] = new Image();
+		playerImgs[4].src="img/hero_blowup_n3.png";
+		playerImgs[5] = new Image();
+		playerImgs[5].src="img/hero_blowup_n4.png";
+
+		px = (canvasW-99)/2;
+		py= canvasH-124-30;
+//		this.x = (option.x-option.width)/2;
+//		this.y = option.y-option.height-30;
+		var player = new Player({
+			frames:playerImgs,
+			width:99,
+			height:124,
+			baseFrameCount:2,
+			x:px,
+			y:py,
+			fps:20
+		});
+		
+		canvas.addEventListener("mousemove",function(e){
+			player.x = e.offsetX-99/2;
+			player.y = e.offsetY-124/2;
+		})
+		
+		//子弹
+		var bulletImg = new Image();
+		bulletImg.src= "img/bullet1.png";
+		
+		//所有子弹数组
+		var bullets = [];
+		
+		setInterval(function(){
+			
+			//判断游戏状态
+			switch (state){
+				case START:
+					console.log('START');
+					//天空背景
+					sky.move();
+					sky.render(ctx);
+					//版权信息
+					ctx.drawImage(copyright,cx,cy);
+					break;
+				case STATRING:
+					console.log('STATRING');
+					//天空背景
+					sky.move();
+					sky.render(ctx);
+					loading.move();
+					loading.render(ctx);
+					//小飞机载入完成后，转换游戏状态
+					if(loading.frameIndex ==4){
+						state =RUNNING;
+					}
+					break;
+				case RUNNING:
+					//天空背景
+					console.log('RUNNING');
+					sky.move();
+					sky.render(ctx);
+					player.move();
+					player.render(ctx);
+					break;
+				case PAUSE:
+					console.log('PAUSE');				
+					break;
+				case GAMEOVER:
+					console.log('GAMEOVER');
+					break;
+				default:
+					break;
+			}
+		},1000/100);
+        
+	</script>
+</html>

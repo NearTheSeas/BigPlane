@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<script src="js/BackGround.js"></script>
+		<title></title>
+		<style>
+			div {
+				width: 480px;
+				height: 620px;
+				margin: 0 auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<canvas id="canvas" width="1000" height="1000"></canvas>
+		</div>
+	</body>
+	<script type="text/javascript">
+        var canvas = document.querySelector('canvas');
+        var ctx = canvas.getContext('2d');
+		//定义基本数据
+		var width = 480;
+		var height = 620;
+		//创建图像对象，来表示天空、角色、敌人
+		var bg = new Image();
+		bg.src = "img/background.png";
+		
+		var copyright = new Image();
+		copyright.src='img/shoot_copyright.png';
+		//定义背景
+		//数据对象
+		var SKY = {image:bg,width:480,height:620,speed:20}; 
+		//业务对象
+		var Sky = function (config){
+			this.bg=config.image;
+			this.width=config.width;
+			this.height= config.height;
+			this.speed = 1000/config.fps;
+			this.x1=0; //第一幅图的 x,y 坐标
+			this.y1=0;
+			this.x2=0; //第二幅图 x,y 
+			this.y2= -this.height; //第二幅在第一幅图上方
+			
+			this.lastTime = 0; //上一次执行动画的时间 用于判断是否到达时机
+			
+			//移动背景纵坐标，y1 ++  y2++ 判断 y1 y2  如果其值等于height 则该图 移动到 -height 的位置
+			this.setp = function ()	{
+				//当前时间
+				var currentTime = new Date().getTime();
+				//判断是否到达运动的时间
+				if(currentTime - this.lastTime > this.speed){
+					this.y1++;
+					this.y2++;
+					this.lastTme = new Date().getTime();
+				}
+				//判断背景图是否超出画布
+				if(this.y1>=this.height){
+					this.y1 = -this.height;
+				}
+				if(this.y2>=this.height){
+					this.y2 = -this.height;
+				}
+			}
+			
+			//绘制
+			this.paint = function (ctx){
+				ctx.drawImage(this.bg,this.x1,this.y1);
+				
+				ctx.drawImage(this.bg,this.x2,this.y2);
+			}
+		}
+	var img = new Image();
+	img.src='img/background.png';
+	var sky = new BackGround({img,width:480,height:620,	fps:20});
+	
+	setInterval(function(){
+		sky.move();
+		sky.render(ctx);
+	},1000/100);
+	</script>
+</html>
